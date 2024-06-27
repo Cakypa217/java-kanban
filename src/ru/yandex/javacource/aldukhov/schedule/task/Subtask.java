@@ -1,3 +1,5 @@
+package ru.yandex.javacource.aldukhov.schedule.task;
+
 public class Subtask extends Task {
     private int epicId;
 

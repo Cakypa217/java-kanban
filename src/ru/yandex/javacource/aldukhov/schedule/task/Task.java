@@ -1,3 +1,4 @@
+package ru.yandex.javacource.aldukhov.schedule.task;
 import java.util.Objects;
 
 public class Task {

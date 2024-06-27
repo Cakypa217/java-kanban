@@ -1,7 +1,9 @@
+package ru.yandex.javacource.aldukhov.schedule.task;
+
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    ArrayList<Integer> subTaskIds;
+    private ArrayList<Integer> subTaskIds;
 
     public Epic(String name, String description) {
         super(name, description);
@@ -20,5 +22,9 @@ public class Epic extends Task {
         if (!subTaskIds.contains(subtaskId)) {
             subTaskIds.add(subtaskId);
         }
+    }
+
+    public void cleanSubtaskIds() {
+        subTaskIds.clear();
     }
 }
