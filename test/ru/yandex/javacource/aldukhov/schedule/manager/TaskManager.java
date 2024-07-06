@@ -1,6 +1,8 @@
 package ru.yandex.javacource.aldukhov.schedule.manager;
 
-import ru.yandex.javacource.aldukhov.schedule.task.*;
+import ru.yandex.javacource.aldukhov.schedule.task.Epic;
+import ru.yandex.javacource.aldukhov.schedule.task.Subtask;
+import ru.yandex.javacource.aldukhov.schedule.task.Task;
 
 import java.util.List;
 

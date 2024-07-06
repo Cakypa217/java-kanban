@@ -1,4 +1,4 @@
-package ru.yandex.javacource.aldukhov.schedule.test;
+package ru.yandex.javacource.aldukhov.schedule;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -8,13 +8,13 @@ import ru.yandex.javacource.aldukhov.schedule.task.Status;
 import ru.yandex.javacource.aldukhov.schedule.task.Subtask;
 import ru.yandex.javacource.aldukhov.schedule.task.Task;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.testng.Assert.assertNotNull;
 import static org.testng.AssertJUnit.assertEquals;
 
-public class MainTest {
+public class TaskManagerTest {
     InMemoryTaskManager manager = new InMemoryTaskManager();
 
     @Test //проверьте, что экземпляры класса Task и наследники равны друг другу, если равен их id;
@@ -79,7 +79,7 @@ public class MainTest {
         assertEquals(taskId, task.getId());
 
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        final  int epicId = manager.addNewEpic(epic);
+        final int epicId = manager.addNewEpic(epic);
         assertEquals(epic, manager.epicById(epicId));
         assertEquals(epicId, epic.getId());
 
@@ -107,15 +107,44 @@ public class MainTest {
         assertEquals(Status.NEW, task.getStatus());
     }
 
-    @Test //задачи, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
+    @Test //task, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     public void savingTaskWhenChanging() {
         Task task = new Task("Задача 1", "Описание 1");
         manager.addNewTask(task);
         manager.taskById(1);
         Task task1 = manager.taskById(1);
-        ArrayList<Task> tasks = manager.getHistory();
+        List<Task> tasks = manager.getHistory();
         Task task2 = tasks.get(0);
         manager.updateTask(new Task("Задача 2", "Описание 2"));
         Assertions.assertEquals(task1, task2);
+    }
+
+    @Test //epic, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
+    public void savingEpicWhenChanging() {
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        manager.addNewEpic(epic);
+        manager.epicById(1);
+        Epic epic1 = manager.epicById(1);
+        epic1.setId(2);
+        List<Task> epics = manager.getHistory();
+        Task epic2 = epics.get(1);
+        manager.updateEpic(new Epic("Эпик 2", "Описание эпика 2"));
+        Assertions.assertEquals(epic1, epic2);
+
+    }
+
+    @Test //subtask, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
+    public void savingSubTaskWhenChanging() {
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        manager.addNewEpic(epic);
+        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 1);
+        manager.addNewSubtask(subtask);
+        manager.subtaskById(2);
+        Subtask subtask1 = manager.subtaskById(2);
+        subtask1.setId(3);
+        List<Task> subtasks = manager.getHistory();
+        Task subtask2 = subtasks.get(2);
+        manager.updateSubtask(new Subtask("Подзадача 2", "Описание подзадачи 2", 1));
+        Assertions.assertEquals(subtask1, subtask2);
     }
 }

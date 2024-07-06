@@ -1,6 +1,9 @@
 package ru.yandex.javacource.aldukhov.schedule.manager;
 
-import ru.yandex.javacource.aldukhov.schedule.task.*;
+import ru.yandex.javacource.aldukhov.schedule.task.Epic;
+import ru.yandex.javacource.aldukhov.schedule.task.Status;
+import ru.yandex.javacource.aldukhov.schedule.task.Subtask;
+import ru.yandex.javacource.aldukhov.schedule.task.Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +13,6 @@ import java.util.Map;
 public class InMemoryTaskManager implements TaskManager {
     private int generatorId = 0;
     private final HistoryManager historyManager = Managers.getDefaultHistory();
-    ;
     private final Map<Integer, Task> tasks = new HashMap<>();
     private final Map<Integer, Epic> epics = new HashMap<>();
     private final Map<Integer, Subtask> subtasks = new HashMap<>();
