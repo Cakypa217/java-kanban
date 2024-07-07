@@ -1,8 +1,7 @@
-package ru.yandex.javacource.aldukhov.schedule;
+package ru.yandex.javacource.aldukhov.schedule.manager;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import ru.yandex.javacource.aldukhov.schedule.manager.*;
 import ru.yandex.javacource.aldukhov.schedule.task.Epic;
 import ru.yandex.javacource.aldukhov.schedule.task.Status;
 import ru.yandex.javacource.aldukhov.schedule.task.Subtask;
