@@ -9,9 +9,9 @@ import ru.yandex.javacource.aldukhov.schedule.task.Task;
 
 import java.util.List;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.AssertJUnit.assertEquals;
 
 public class TaskManagerTest {
     InMemoryTaskManager manager = new InMemoryTaskManager();
@@ -28,11 +28,11 @@ public class TaskManagerTest {
         final int subTaskId = manager.addNewSubtask(subtask);
         final Subtask savedSubTask = manager.subtaskById(subTaskId);
 
-        assertNotNull(task, "Задача не найдена.");
+        assertNotNull(String.valueOf(task), "Задача не найдена.");
         assertEquals(task, savedTask);
-        assertNotNull(epic, "Задача не найдена.");
+        assertNotNull(String.valueOf(epic), "Задача не найдена.");
         assertEquals(epic, savedEpic);
-        assertNotNull(subtask, "Задача не найдена.");
+        assertNotNull(String.valueOf(subtask), "Задача не найдена.");
         assertEquals(subtask, savedSubTask);
     }
 

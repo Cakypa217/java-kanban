@@ -230,9 +230,49 @@
                       <speaker value="ASSISTANT" />
                       <text value="Чтобы отправить вторую ветку на удаленный репозиторий в GitHub через терминал IntelliJ IDEA, выполните следующие шаги:&#10;&#10;1. Откройте терминал в IntelliJ IDEA (Alt+F12 или View -&gt; Tool Windows -&gt; Terminal).&#10;&#10;2. Убедитесь, что вы находитесь на нужной ветке. Если нет, переключитесь на нее командой:&#10;   ```&#10;   git checkout имя_вашей_ветки&#10;   ```&#10;&#10;3. Если ветка еще не существует на удаленном репозитории, выполните команду:&#10;   ```&#10;   git push -u origin имя_вашей_ветки&#10;   ```&#10;&#10;4. Если ветка уже существует на удаленном репозитории, просто выполните:&#10;   ```&#10;   git push&#10;   ```&#10;&#10;Эти команды отправят вашу ветку на удаленный репозиторий в GitHub. После выполнения, ваша ветка будет доступна в удаленном репозитории." />
                     </message>
+                    <message>
+                      <speaker value="HUMAN" />
+                      <text value="какие сочетание клавиш открывают настройки расширения ? " />
+                    </message>
+                    <message>
+                      <speaker value="ASSISTANT" />
+                      <text value="В предоставленном контексте кодовой базы нет информации о сочетаниях клавиш для открытия настроек расширения. Эта информация обычно зависит от конкретной среды разработки или редактора кода, которые вы используете." />
+                    </message>
+                    <message>
+                      <speaker value="HUMAN" />
+                      <text value="Run find ./test -type f -name &amp;quot;*.java&amp;quot; &amp;gt; tests.txt&#10;./test/ru/yandex/javacource/aldukhov/schedule/manager/TaskManagerTest.java:13: error: package org.testng does not exist&#10;import static org.testng.Assert.assertNotNull;&#10;                        ^&#10;./test/ru/yandex/javacource/aldukhov/schedule/manager/TaskManagerTest.java:13: error: static import only from classes and interfaces&#10;import static org.testng.Assert.assertNotNull;&#10;^&#10;./test/ru/yandex/javacource/aldukhov/schedule/manager/TaskManagerTest.java:14: error: package org.testng does not exist&#10;import static org.testng.AssertJUnit.assertEquals;&#10;                        ^&#10;./test/ru/yandex/javacource/aldukhov/schedule/manager/TaskManagerTest.java:14: error: static import only from classes and interfaces&#10;import static org.testng.AssertJUnit.assertEquals;&#10;^&#10;4 errors&#10;Error: Process completed with exit code 1.&#10;что тут за ошибки ? " />
+                    </message>
+                    <message>
+                      <speaker value="ASSISTANT" />
+                      <text value="Эти ошибки указывают на проблемы с импортом тестовых библиотек. Конкретно:&#10;&#10;1. Пакет org.testng не найден в проекте. Это означает, что библиотека TestNG не добавлена в зависимости проекта или не настроена правильно.&#10;&#10;2. Статические импорты assertNotNull и assertEquals из TestNG не могут быть выполнены из-за отсутствия библиотеки.&#10;&#10;Для решения этих проблем нужно добавить TestNG в зависимости проекта. Если вы используете Maven или Gradle, добавьте соответствующую зависимость в файл конфигурации. Если вы не используете систему управления зависимостями, добавьте JAR-файл TestNG в classpath проекта.&#10;&#10;После добавления TestNG в проект, эти ошибки должны исчезнуть." />
+                    </message>
+                    <message>
+                      <speaker value="HUMAN" />
+                      <text value="как узнать что используется ? Maven или Gradle" />
+                    </message>
+                    <message>
+                      <speaker value="ASSISTANT" />
+                      <text value="Чтобы узнать, используется ли Maven или Gradle в проекте, нужно проверить наличие характерных файлов:&#10;&#10;1. Для Maven: посмотрите, есть ли в корневой директории проекта файл pom.xml.&#10;&#10;2. Для Gradle: проверьте наличие файлов build.gradle или settings.gradle в корневой директории.&#10;&#10;Если вы видите pom.xml, значит проект использует Maven. Если есть build.gradle или settings.gradle, то используется Gradle.&#10;&#10;Также можно посмотреть структуру проекта в IDE - обычно там отображается иконка Maven или Gradle, если проект настроен соответствующим образом." />
+                    </message>
+                    <message>
+                      <speaker value="HUMAN" />
+                      <text value="./test/ru/yandex/javacource/aldukhov/schedule/manager/TaskManagerTest.java:13: error: package org.testng does not exist&#10;import static org.testng.Assert.assertNotNull;&#10;что это значит ? на какие мне поменять импорты что бы все прошло проверку ? " />
+                    </message>
+                    <message>
+                      <speaker value="ASSISTANT" />
+                      <text value="This error indicates that the TestNG library is not available in your project. To resolve this, you should switch to JUnit, which is more commonly used and likely already included in your project setup.&#10;&#10;Replace the TestNG imports with JUnit equivalents:&#10;&#10;Instead of:&#10;```java&#10;import static org.testng.Assert.assertNotNull;&#10;import static org.testng.AssertJUnit.assertEquals;&#10;```&#10;&#10;Use:&#10;```java&#10;import static org.junit.Assert.assertNotNull;&#10;import static org.junit.Assert.assertEquals;&#10;```&#10;&#10;Also, make sure to update any other TestNG-specific annotations or methods to their JUnit counterparts throughout your test class. This change should resolve the import errors and allow your tests to run successfully." />
+                    </message>
+                    <message>
+                      <speaker value="HUMAN" />
+                      <text value="напиши тоже самое только на русском " />
+                    </message>
+                    <message>
+                      <speaker value="ASSISTANT" />
+                      <text value="Конечно, вот перевод на русский:&#10;&#10;Эта ошибка указывает на то, что библиотека TestNG недоступна в вашем проекте. Чтобы решить эту проблему, вам следует перейти на JUnit, который более широко используется и, вероятно, уже включен в настройки вашего проекта.&#10;&#10;Замените импорты TestNG на эквиваленты JUnit:&#10;&#10;Вместо:&#10;```java&#10;import static org.testng.Assert.assertNotNull;&#10;import static org.testng.AssertJUnit.assertEquals;&#10;```&#10;&#10;Используйте:&#10;```java&#10;import static org.junit.Assert.assertNotNull;&#10;import static org.junit.Assert.assertEquals;&#10;```&#10;&#10;Также убедитесь, что вы обновили все другие специфичные для TestNG аннотации или методы на их аналоги в JUnit по всему вашему тестовому классу. Это изменение должно решить проблемы с импортом и позволить вашим тестам успешно запускаться." />
+                    </message>
                   </list>
                 </messages>
-                <updatedAt value="2024-07-28T00:25:54.9600862" />
+                <updatedAt value="2024-07-28T00:46:17.5277465" />
               </chat>
             </list>
           </chats>
