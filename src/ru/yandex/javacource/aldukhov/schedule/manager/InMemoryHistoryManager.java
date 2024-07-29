@@ -77,7 +77,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (tail == null) {
             head = null;
         }
-        history.remove(node.task.getId());
     }
 
     public List<Task> getTask() {
