@@ -166,11 +166,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (!line.startsWith("id")) {
                     Task task = fromString(line);
                     if (task != null) {
-                        if (task instanceof Epic) {
-                            Epic epic = (Epic) task;
+                        if (task instanceof Epic epic) {
                             super.addNewEpic(epic);
-                        } else if (task instanceof Subtask) {
-                            Subtask subtask = (Subtask) task;
+                        } else if (task instanceof Subtask subtask) {
                             super.addNewSubtask(subtask);
                         } else {
                             super.addNewTask(task);
