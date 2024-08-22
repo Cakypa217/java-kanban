@@ -4,9 +4,11 @@ import ru.yandex.javacource.aldukhov.schedule.task.*;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
+    private static final String HEADER = "id,type,name,status,description,epic";
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -89,38 +91,32 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     protected void save() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("id,type,name,status,description,epic\n");
+            writer.write(HEADER);
+            writer.newLine();
             for (Task task : getTasks()) {
-                writer.write(taskToString(task) + "\n");
+                writer.write(toString(task));
+                writer.newLine();
             }
             for (Epic epic : getEpics()) {
-                writer.write(epicToString(epic) + "\n");
+                writer.write(toString(epic));
+                writer.newLine();
             }
             for (Subtask subtask : getSubtask()) {
-                writer.write(subtaskToString(subtask) + "\n");
+                writer.write(toString(subtask));
+                writer.newLine();
             }
         } catch (IOException e) {
             throw new ManagerSaveException("Не удалось сохранить задачи в файл.", e);
         }
     }
 
-    private String taskToString(Task task) {
-        return String.format("%d,%s,%s,%s,%s",
-                task.getId(), Type.TASK, task.getName(), task.getStatus().toString(), task.getDescription());
+    private String toString(Task task) {
+        return task.getId() + "," + task.getType() + "," + task.getName() + "," + task.getStatus() + ","
+                + task.getDescription() + "," + (task.getType().equals(Type.SUBTASK)
+                ? ((Subtask) task).getEpicId() : "");
     }
 
-    private String epicToString(Epic epic) {
-        return String.format("%d,%s,%s,%s,%s",
-                epic.getId(), Type.EPIC, epic.getName(), epic.getStatus().toString(), epic.getDescription());
-    }
-
-    private String subtaskToString(Subtask subtask) {
-        return String.format("%d,%s,%s,%s,%s,%d",
-                subtask.getId(), Type.SUBTASK, subtask.getName(), subtask.getStatus().toString(),
-                subtask.getDescription(), subtask.getEpicId());
-    }
-
-    private Task fromString(String value) {
+    private static Task fromString(String value) {
         if (value == null) {
             return null;
         }
@@ -134,21 +130,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         switch (type) {
             case TASK:
-                Task task = new Task(name, description);
-                task.setId(id);
-                task.setStatus(status);
-                return task;
+                return new Task(id, name, description, status, Type.TASK);
             case EPIC:
-                Epic epic = new Epic(name, description);
-                epic.setId(id);
-                epic.setStatus(status);
-                return epic;
+                return new Epic(id, name, description, status, Type.EPIC);
             case SUBTASK:
                 int epicId = Integer.parseInt(files[5]);
-                Subtask subtask = new Subtask(name, description, epicId);
-                subtask.setId(id);
-                subtask.setStatus(status);
-                return subtask;
+                return new Subtask(id, name, description, status, Type.SUBTASK, epicId);
 
             default:
                 throw new IllegalArgumentException("Неизвестный тип задачи: " + type);
@@ -182,8 +169,32 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
-        FileBackedTaskManager manager = new FileBackedTaskManager(file);
-        manager.load();
-        return manager;
+        final FileBackedTaskManager taskManager = new FileBackedTaskManager(file);
+        try {
+            final String csv = Files.readString(file.toPath());
+            final String[] lines = csv.split(System.lineSeparator());
+            int generatorId = 0;
+            for (int i = 1; i < lines.length; i++) {
+                String line = lines[i];
+                if (line.isEmpty()) {
+                    break;
+                }
+                final Task task = fromString(line);
+                final int id = task.getId();
+                if (id > generatorId) {
+                    generatorId = id;
+                }
+                taskManager.addAnyTask(task);
+            }
+            for (Map.Entry<Integer, Subtask> e : taskManager.subtasks.entrySet()) {
+                final Subtask subtask = e.getValue();
+                final Epic epic = taskManager.epics.get(subtask.getEpicId());
+                epic.addSubtaskId(subtask.getId());
+            }
+            taskManager.generatorId = generatorId;
+        } catch (IOException e) {
+            throw new ManagerSaveException("Не удалось загрузить задачи из файла: " + file.getName(), e);
+        }
+        return taskManager;
     }
 }
