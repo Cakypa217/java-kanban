@@ -7,8 +7,8 @@ import java.nio.file.Files;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    private final File file;
     private static final String HEADER = "id,type,name,status,description,epic";
+    private final File file;
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -142,29 +142,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
     }
 
-    private void load() {
-        if (file.length() == 0) {
-            return;
-        }
-        try {
-            String content = Files.readString(file.toPath());
-            String[] lines = content.split("\n");
-            for (String line : lines) {
-                if (!line.startsWith("id")) {
-                    Task task = fromString(line);
-                    if (task != null) {
-                        if (task instanceof Epic epic) {
-                            super.addNewEpic(epic);
-                        } else if (task instanceof Subtask subtask) {
-                            super.addNewSubtask(subtask);
-                        } else {
-                            super.addNewTask(task);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new ManagerSaveException("Не удалось загрузить задачи из файла.", e);
+    protected void addAnyTask(Task task) {
+        final int id = task.getId();
+        switch (task.getType()) {
+            case TASK:
+                tasks.put(id, task);
+                break;
+            case SUBTASK:
+                subtasks.put(id, (Subtask) task);
+                break;
+            case EPIC:
+                epics.put(id, (Epic) task);
+                break;
         }
     }
 

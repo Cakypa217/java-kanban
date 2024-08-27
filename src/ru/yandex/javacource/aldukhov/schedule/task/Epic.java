@@ -1,12 +1,17 @@
 package ru.yandex.javacource.aldukhov.schedule.task;
 
+import ru.yandex.javacource.aldukhov.schedule.manager.TaskManager;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subTaskIds;
+    private LocalDateTime endTime;
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, Duration.ZERO, null);
         this.subTaskIds = new ArrayList<>();
     }
 
@@ -36,5 +41,41 @@ public class Epic extends Task {
     @Override
     public Type getType() {
         return Type.EPIC;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void updateTimeFields(TaskManager taskManager) {
+        if (subTaskIds.isEmpty()) {
+            setDuration(Duration.ZERO);
+            setStartTime(null);
+            endTime = null;
+            return;
+        }
+
+        LocalDateTime earliestStart = null;
+        LocalDateTime latestEnd = null;
+        Duration totalDuration = Duration.ZERO;
+
+        for (Integer subtaskId : subTaskIds) {
+            Subtask subtask = taskManager.subtaskById(subtaskId);
+            if (subtask != null && subtask.getStartTime() != null) {
+                if (earliestStart == null || subtask.getStartTime().isBefore(earliestStart)) {
+                    earliestStart = subtask.getStartTime();
+                }
+                LocalDateTime subtaskEnd = subtask.getEndTime();
+                if (latestEnd == null || subtaskEnd.isAfter(latestEnd)) {
+                    latestEnd = subtaskEnd;
+                }
+                totalDuration = totalDuration.plus(subtask.getDuration());
+            }
+        }
+
+        setStartTime(earliestStart);
+        setDuration(totalDuration);
+        endTime = latestEnd;
     }
 }

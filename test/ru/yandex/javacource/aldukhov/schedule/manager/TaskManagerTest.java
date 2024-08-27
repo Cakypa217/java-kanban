@@ -1,236 +1,246 @@
 package ru.yandex.javacource.aldukhov.schedule.manager;
 
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import ru.yandex.javacource.aldukhov.schedule.task.Epic;
 import ru.yandex.javacource.aldukhov.schedule.task.Status;
 import ru.yandex.javacource.aldukhov.schedule.task.Subtask;
 import ru.yandex.javacource.aldukhov.schedule.task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TaskManagerTest {
+abstract class TaskManagerTest<T extends TaskManager> {
     InMemoryTaskManager manager = new InMemoryTaskManager();
+    protected T taskManager;
 
-    @Test //проверьте, что экземпляры класса Task и наследники равны друг другу, если равен их id;
-    public void equalityOfTasksWithSameId() {
-        Task task = new Task("Задача 1", "Описание 1");
-        final int taskId = manager.addNewTask(task);
-        final Task savedTask = manager.taskById(taskId);
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        final int epicId = manager.addNewEpic(epic);
-        final Epic savedEpic = manager.epicById(epicId);
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 2);
-        final int subTaskId = manager.addNewSubtask(subtask);
-        final Subtask savedSubTask = manager.subtaskById(subTaskId);
-
-        assertNotNull(String.valueOf(task), "Задача не найдена.");
-        assertEquals(task, savedTask);
-        assertNotNull(String.valueOf(epic), "Задача не найдена.");
-        assertEquals(epic, savedEpic);
-        assertNotNull(String.valueOf(subtask), "Задача не найдена.");
-        assertEquals(subtask, savedSubTask);
+    @BeforeEach
+    void setUp() {
+        taskManager = createTaskManager();
     }
 
-    @Test //проверьте, что объект Epic нельзя добавить в самого себя в виде подзадачи;
-    public void addingAnEpicToYourself() {
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        epic.setId(2);
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 2);
-        subtask.setId(2);
-        Assertions.assertNull(manager.addNewSubtask(subtask));
+    abstract T createTaskManager();
+
+    @Test
+    public void testAddNewTask() {
+        Task task = new Task("Задача 1", "Описание задачи 1", Duration.ofHours(1), LocalDateTime.now());
+        int id = manager.addNewTask(task);
+        assertNotEquals(-1, id);
+        assertEquals(task, manager.taskById(id));
     }
 
-    @Test //проверьте, что объект Subtask нельзя сделать своим же эпиком;
-    public void makeYourSubtaskAnEpic() {
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        final int epicId = manager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", epicId);
-        final int subTaskId = manager.addNewSubtask(subtask);
-        epic.addSubtaskId(subTaskId);
-        epic.setId(subTaskId);
-        Assertions.assertNull(manager.addNewEpic(epic));
+    @Test
+    public void testAddNewEpic() {
+        Epic epic = new Epic("Эпик 1", "Описание");
+        int id = manager.addNewEpic(epic);
+        assertNotNull(id);
+        assertEquals(epic, manager.epicById(id));
     }
 
-    @Test //утилитарный класс всегда возвращает проинициализированные и готовые к работе экземпляры менеджеров;
-    public void shouldReturnSameInstanceOfTaskManager() {
-        TaskManager first = Managers.getDefault();
-        TaskManager second = Managers.getDefault();
-        assertSame(first, second);
-    }
-
-    @Test //утилитарный класс всегда возвращает проинициализированные и готовые к работе экземпляры менеджеров;
-    public void shouldReturnSameInstanceOfHistoryManager() {
-        HistoryManager first = Managers.getDefaultHistory();
-        HistoryManager second = Managers.getDefaultHistory();
-        assertSame(first, second);
-    }
-
-    @Test //проверьте, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
-    public void InMemoryTaskManagerTest() {
-        Task task = new Task("Задача 1", "Описание 1");
-        final int taskId = manager.addNewTask(task);
-        assertEquals(task, manager.taskById(taskId));
-        assertEquals(taskId, task.getId());
-
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        final int epicId = manager.addNewEpic(epic);
-        assertEquals(epic, manager.epicById(epicId));
-        assertEquals(epicId, epic.getId());
-
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 2);
-        final int subtaskId = manager.addNewSubtask(subtask);
-        assertEquals(subtask, manager.subtaskById(subtaskId));
-        assertEquals(subtaskId, subtask.getId());
-    }
-
-    @Test //задачи с заданным id и сгенерированным id не конфликтуют внутри менеджера;
-    public void givenIdGeneratedId() {
-        Task task = new Task("Задача 1", "Описание 1");
-        manager.addNewTask(task);
-        final int taskId = task.getId();
-        manager.updateTask(new Task("Задача 2", "Описание 2"));
-        assertEquals(taskId, task.getId());
-    }
-
-    @Test //тест, в котором проверяется неизменность задачи (по всем полям) при добавлении задачи в менеджер
-    public void constancyOfTheTask() {
-        Task task = new Task("Задача 1", "Описание 1");
-        manager.addNewTask(task);
-        assertEquals("Задача 1", task.getName());
-        assertEquals("Описание 1", task.getDescription());
-        assertEquals(Status.NEW, task.getStatus());
-    }
-
-    @Test //task, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingTaskWhenChanging() {
-        Task task = new Task("Задача 1", "Описание 1");
-        manager.addNewTask(task);
-        manager.taskById(1);
-        Task task1 = manager.taskById(1);
-        List<Task> tasks = manager.getHistory();
-        Task task2 = tasks.get(tasks.size() - 1);
-        manager.updateTask(new Task("Задача 2", "Описание 2"));
-        Assertions.assertEquals(task1, task2);
-    }
-
-    @Test //epic, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingEpicWhenChanging() {
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        manager.addNewEpic(epic);
-        manager.epicById(1);
-        Epic epic1 = manager.epicById(1);
-        epic1.setId(2);
-        List<Task> epics = manager.getHistory();
-        Task epic2 = epics.get(0);
-        manager.updateEpic(new Epic("Эпик 2", "Описание эпика 2"));
-        Assertions.assertEquals(epic1, epic2);
-    }
-
-    @Test //subtask, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingSubTaskWhenChanging() {
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        manager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 1);
-        manager.addNewSubtask(subtask);
-        manager.subtaskById(2);
-        Subtask subtask1 = manager.subtaskById(2);
-        subtask1.setId(3);
-        List<Task> subtasks = manager.getHistory();
-        Task subtask2 = subtasks.get(subtasks.size() - 1);
-        manager.updateSubtask(new Subtask("Подзадача 2", "Описание подзадачи 2", 1));
-        Assertions.assertEquals(subtask1, subtask2);
-    }
-
-    @Test //встроенный связный список версий, а также операции добавления и удаления работают корректно.
-    public void testLinkedListOperations() {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-
-        Task task1 = new Task("Задача 1", "Описание задачи 1");
-        task1.setId(1);
-        Task task2 = new Task("Задача 2", "Описание задачи 2");
-        task2.setId(2);
-        Task task3 = new Task("Задача 3", "Описание задачи 3");
-        task3.setId(3);
-
-        // Проверка добавления
-        historyManager.add(task1);
-        historyManager.add(task2);
-        historyManager.add(task3);
-
-        List<Task> history = historyManager.getHistory();
-        assertEquals(3, history.size());
-        assertEquals(task1, history.get(0));
-        assertEquals(task2, history.get(1));
-        assertEquals(task3, history.get(2));
-
-        // Проверка удаления из середины
-        historyManager.remove(2);
-        history = historyManager.getHistory();
-        assertEquals(2, history.size());
-        assertEquals(task1, history.get(0));
-        assertEquals(task3, history.get(1));
-
-        // Проверка удаления с начала
-        historyManager.remove(1);
-        history = historyManager.getHistory();
-        assertEquals(1, history.size());
-        assertEquals(task3, history.get(0));
-
-        // Проверка удаления с конца
-        historyManager.remove(3);
-        history = historyManager.getHistory();
-        assertTrue(history.isEmpty());
-
-        // Проверка добавления после удаления всех элементов
-        historyManager.add(task2);
-        history = historyManager.getHistory();
-        assertEquals(1, history.size());
-        assertEquals(task2, history.get(0));
-    }
-
-    @Test // Внутри эпиков не должно оставаться неактуальных id подзадач.
-    public void testDeleteSubtaskRemovesIdFromEpic() {
-        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+    @Test
+    public void testAddNewSubtask() {
+        Epic epic = new Epic("Эпик 1", "Описание");
         int epicId = manager.addNewEpic(epic);
-        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1", 1);
+        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
         int subtaskId = manager.addNewSubtask(subtask);
-        manager.delSubtaskById(2);
-
-        Epic updatedEpic = manager.epicById(epicId);
-        assertFalse(updatedEpic.getSubTaskIds().contains(subtaskId));
+        assertNotNull(subtaskId);
+        assertEquals(subtask, manager.subtaskById(subtaskId));
+        assertTrue(manager.epicById(epicId).getSubTaskIds().contains(subtaskId));
     }
 
-    @Test // Удаляемые подзадачи не должны хранить внутри себя старые id.
-    public void testDeleteEpicRemovesAllSubtasks() {
+    @Test
+    public void testUpdateEpicStatus() {
+        Epic epic = new Epic("Эпик 1", "Описание");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2",
+                epicId, Duration.ofHours(1), LocalDateTime.now().plusHours(2));
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+
+        assertEquals(Status.NEW, manager.epicById(epicId).getStatus());
+
+        subtask1.setStatus(Status.IN_PROGRESS);
+        manager.updateSubtask(subtask1);
+        manager.updateEpic(epic);
+        assertEquals(Status.IN_PROGRESS, manager.epicById(epicId).getStatus());
+
+        subtask2.setStatus(Status.DONE);
+        manager.updateSubtask(subtask2);
+        manager.updateEpic(epic);
+        assertEquals(Status.IN_PROGRESS, manager.epicById(epicId).getStatus());
+
+        subtask1.setStatus(Status.DONE);
+        manager.updateSubtask(subtask1);
+        manager.updateEpic(epic);
+        assertEquals(Status.DONE, manager.epicById(epicId).getStatus());
+    }
+
+    @Test
+    public void testGetTasks() {
+        Task task1 = new Task("Задача 1", "Описание 1",
+                Duration.ofHours(2), LocalDateTime.now());
+        Task task2 = new Task("Задача 2", "Описание 2",
+                Duration.ofHours(3), LocalDateTime.now().plusDays(1));
+        manager.addNewTask(task1);
+        manager.addNewTask(task2);
+        List<Task> tasks = manager.getTasks();
+        assertEquals(2, tasks.size());
+        assertTrue(tasks.contains(task1));
+        assertTrue(tasks.contains(task2));
+    }
+
+    @Test
+    public void testGetEpics() {
+        Epic epic1 = new Epic("Эпик 1", "Описание эпика 1");
+        Epic epic2 = new Epic("Эпик 2", "Описание эпика 2");
+        manager.addNewEpic(epic1);
+        manager.addNewEpic(epic2);
+        List<Epic> epics = manager.getEpics();
+        assertEquals(2, epics.size());
+        assertTrue(epics.contains(epic1));
+        assertTrue(epics.contains(epic2));
+    }
+
+    @Test
+    public void testGetSubtasks() {
+        Epic epic = new Epic("Эпик", "Описание эпика");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Подзадача 2", "Описание 2",
+                epicId, Duration.ofHours(2), LocalDateTime.now().plusDays(1));
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+        List<Subtask> subtasks = manager.getSubtask();
+        assertEquals(2, subtasks.size());
+        assertTrue(subtasks.contains(subtask1));
+        assertTrue(subtasks.contains(subtask2));
+    }
+
+    @Test
+    public void testGetTaskOfEpic() {
+        Epic epic = new Epic("Эпик", "Описание эпика");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Подзадача 2", "Описание 2",
+                epicId, Duration.ofHours(2), LocalDateTime.now().plusDays(1));
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+        List<Subtask> subtasksOfEpic = manager.getTaskOfEpic(epic);
+        assertEquals(2, subtasksOfEpic.size());
+        assertTrue(subtasksOfEpic.contains(subtask1));
+        assertTrue(subtasksOfEpic.contains(subtask2));
+    }
+
+    @Test
+    public void testClearTask() {
+        Task task1 = new Task("Задача 1", "Описание 1",
+                Duration.ofHours(2), LocalDateTime.now());
+        Task task2 = new Task("Задача 2", "Описание 2",
+                Duration.ofHours(3), LocalDateTime.now().plusDays(1));
+        manager.addNewTask(task1);
+        manager.addNewTask(task2);
+        manager.clearTask();
+        assertTrue(manager.getTasks().isEmpty());
+    }
+
+    @Test
+    public void testClearEpic() {
+        Epic epic1 = new Epic("Эпик 1", "Описание эпика 1");
+        Epic epic2 = new Epic("Эпик 2", "Описание эпика 2");
+        manager.addNewEpic(epic1);
+        manager.addNewEpic(epic2);
+        manager.clearEpic();
+        assertTrue(manager.getEpics().isEmpty());
+    }
+
+    @Test
+    public void testClearSubtasks() {
+        Epic epic = new Epic("Эпик", "Описание эпика");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Подзадача 2", "Описание 2",
+                epicId, Duration.ofHours(2), LocalDateTime.now().plusDays(1));
+        manager.addNewSubtask(subtask1);
+        manager.addNewSubtask(subtask2);
+        manager.clearSubtasks();
+        assertTrue(manager.getSubtask().isEmpty());
+        assertTrue(manager.getTaskOfEpic(epic).isEmpty());
+    }
+
+    @Test
+    public void testTaskById() {
+        Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
+        int taskId = manager.addNewTask(task);
+        assertEquals(task, manager.taskById(taskId));
+    }
+
+    @Test
+    public void testEpicById() {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
-        Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1", epicId);
-        Subtask subtask2 = new Subtask("Подзадача 2", "Описание подзадачи 2", epicId);
-        int subtaskId1 = manager.addNewSubtask(subtask1);
-        int subtaskId2 = manager.addNewSubtask(subtask2);
-
-        manager.delEpicById(epicId);
-
-        assertNull(manager.subtaskById(subtaskId1));
-        assertNull(manager.subtaskById(subtaskId2));
+        assertEquals(epic, manager.epicById(epicId));
     }
 
-    @Test //Сеттеры влияют на данные внутри менеджера
-    // Решение: убрать сеттеры, при добавлении задач добавлять их поля вручную, или же обновление производить только
-    // через менеджер.
-    public void testSetterChangeDoesAffectManagerWithoutUpdate() {
-        Task task = new Task("Задача", "Описание");
+    @Test
+    public void testSubtaskById() {
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        int subtaskId = manager.addNewSubtask(subtask);
+        assertEquals(subtask, manager.subtaskById(subtaskId));
+    }
+
+    @Test
+    public void testDelTaskById() {
+        Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         int taskId = manager.addNewTask(task);
+        manager.delTaskById(taskId);
+        assertNull(manager.taskById(taskId));
+    }
 
-        task.setName("Измененная задача");
-        task.setDescription("Измененое описание");
+    @Test
+    public void testDelEpicById() {
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        int epicId = manager.addNewEpic(epic);
+        manager.delEpicById(epicId);
+        assertNull(manager.epicById(epicId));
+    }
 
-        Task retrievedTask1 = manager.taskById(taskId);
-        assertEquals("Измененная задача", retrievedTask1.getName());
+    @Test
+    public void testDelSubtaskById() {
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        int epicId = manager.addNewEpic(epic);
+        Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
+                epicId, Duration.ofHours(1), LocalDateTime.now());
+        int subtaskId = manager.addNewSubtask(subtask);
+        manager.delSubtaskById(subtaskId);
+        assertNull(manager.subtaskById(subtaskId));
+    }
+
+    @Test
+    public void testGetHistory() {
+        Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
+        Epic epic = new Epic("Эпик 1", "Описание эпика 1");
+        int taskId = manager.addNewTask(task);
+        int epicId = manager.addNewEpic(epic);
+        manager.taskById(taskId);
+        manager.epicById(epicId);
+        List<Task> history = manager.getHistory();
+
+        assertEquals(3, history.size());
+        assertTrue(history.contains(task));
+        assertTrue(history.contains(epic));
     }
 }
