@@ -12,10 +12,10 @@ public class Main {
         InMemoryTaskManager manager = new InMemoryTaskManager();
 
         //Добавляем задачи
-        Task task1 = new Task("Задача 1", "описание 1 задачи"
-                , Duration.ofHours(2), LocalDateTime.now());
-        Task task2 = new Task("Задача 2", "описание 2 задачи"
-                , Duration.ofHours(3), LocalDateTime.now().plusDays(1));
+        Task task1 = new Task("Задача 1", "описание 1 задачи",
+                Duration.ofHours(2), LocalDateTime.now());
+        Task task2 = new Task("Задача 2", "описание 2 задачи",
+                Duration.ofHours(3), LocalDateTime.now().plusDays(1));
         manager.addNewTask(task1);
         manager.addNewTask(task2);
 
