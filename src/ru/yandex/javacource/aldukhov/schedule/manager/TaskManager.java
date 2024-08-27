@@ -3,7 +3,6 @@ package ru.yandex.javacource.aldukhov.schedule.manager;
 import ru.yandex.javacource.aldukhov.schedule.task.*;
 
 import java.util.List;
-import java.util.Set;
 
 public interface TaskManager {
     int addNewTask(Task task);
