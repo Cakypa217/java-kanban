@@ -34,7 +34,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(task, manager.taskById(id));
 
         Task intersectingTask = new Task("Пересекающаяся задача", "Описание", Duration.ofHours(2), task.getStartTime());
-        assertThrows(ManagerSaveException.class, () -> manager.addNewTask(intersectingTask));
+        assertThrows(TaskValidationException.class, () -> manager.addNewTask(intersectingTask));
     }
 
     @Test
