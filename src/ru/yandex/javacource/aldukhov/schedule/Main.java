@@ -3,27 +3,35 @@ package ru.yandex.javacource.aldukhov.schedule;
 import ru.yandex.javacource.aldukhov.schedule.manager.*;
 import ru.yandex.javacource.aldukhov.schedule.task.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
 
     public static void main(String[] args) {
         InMemoryTaskManager manager = new InMemoryTaskManager();
 
         //Добавляем задачи
-        Task task1 = new Task("Задача 1", "описание 1 задачи");
-        Task task2 = new Task("Задача 2", "описание 2 задачи");
+        Task task1 = new Task("Задача 1", "описание 1 задачи",
+                Duration.ofHours(2), LocalDateTime.now());
+        Task task2 = new Task("Задача 2", "описание 2 задачи",
+                Duration.ofHours(3), LocalDateTime.now().plusDays(1));
         manager.addNewTask(task1);
         manager.addNewTask(task2);
 
         Epic epic1 = new Epic("Эпик 1", "описание эпика 1");
         manager.addNewEpic(epic1);
-        Subtask subtask1 = new Subtask("Подзадача 1", "описание подзадачи 1", 3);
-        Subtask subtask2 = new Subtask("Подзадача 2", "описание подзадачи 2", 3);
+        Subtask subtask1 = new Subtask("Подзадача 1", "описание подзадачи 1", 3,
+                Duration.ofHours(2), LocalDateTime.now());
+        Subtask subtask2 = new Subtask("Подзадача 2", "описание подзадачи 2", 3,
+                Duration.ofHours(3), LocalDateTime.now().plusDays(2));
         manager.addNewSubtask(subtask1);
         manager.addNewSubtask(subtask2);
 
         Epic epic2 = new Epic("Эпик 2", "описание эпика 2");
         manager.addNewEpic(epic2);
-        Subtask subtask3 = new Subtask("Подзадача 1", "описание подзадачи 1", 6);
+        Subtask subtask3 = new Subtask("Подзадача 1", "описание подзадачи 1", 6,
+                Duration.ofHours(3), LocalDateTime.now().plusDays(4));
         manager.addNewSubtask(subtask3);
 
         //Просматриваем задачи что бы вывести их в историю

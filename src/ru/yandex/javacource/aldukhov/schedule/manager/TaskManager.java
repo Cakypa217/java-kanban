@@ -5,7 +5,7 @@ import ru.yandex.javacource.aldukhov.schedule.task.*;
 import java.util.List;
 
 public interface TaskManager {
-    int addNewTask(Task task);
+    int addNewTask(Task task) throws ManagerSaveException;
 
     Integer addNewEpic(Epic epic);
 
@@ -16,8 +16,6 @@ public interface TaskManager {
     void updateEpic(Epic epic);
 
     void updateSubtask(Subtask subtask);
-
-    void updateEpicStatus(Epic epic);
 
     List<Task> getTasks();
 
