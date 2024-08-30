@@ -32,6 +32,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         int id = manager.addNewTask(task);
         assertNotEquals(-1, id);
         assertEquals(task, manager.taskById(id));
+
+        Task intersectingTask = new Task("Пересекающаяся задача", "Описание", Duration.ofHours(2), task.getStartTime());
+        assertThrows(ManagerSaveException.class, () -> manager.addNewTask(intersectingTask));
     }
 
     @Test
@@ -40,6 +43,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         int id = manager.addNewEpic(epic);
         assertNotNull(id);
         assertEquals(epic, manager.epicById(id));
+
     }
 
     @Test

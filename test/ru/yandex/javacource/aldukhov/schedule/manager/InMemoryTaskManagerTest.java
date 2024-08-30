@@ -112,8 +112,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         int id1 = manager.addNewTask(task1);
         assertNotEquals(-1, id1);
 
-        int id2 = manager.addNewTask(task2);
-        assertEquals(-1, id2);
+        assertThrows(ManagerSaveException.class, () -> manager.addNewTask(task2));
 
         int id3 = manager.addNewTask(task3);
         assertNotEquals(-1, id3);
