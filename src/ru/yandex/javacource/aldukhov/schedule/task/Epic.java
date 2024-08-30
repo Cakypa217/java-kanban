@@ -1,9 +1,7 @@
 package ru.yandex.javacource.aldukhov.schedule.task;
 
-import ru.yandex.javacource.aldukhov.schedule.manager.TaskManager;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
