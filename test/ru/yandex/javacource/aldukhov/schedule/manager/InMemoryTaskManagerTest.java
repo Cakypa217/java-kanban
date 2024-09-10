@@ -23,7 +23,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    public void testEpicStatusAllNew() {
+    public void testEpicStatusAllNew() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -40,7 +40,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    public void testEpicStatusAllDone() {
+    public void testEpicStatusAllDone() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -61,7 +61,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    public void testEpicStatusMixed() {
+    public void testEpicStatusMixed() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -80,7 +80,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test
-    public void testEpicStatusInProgress() {
+    public void testEpicStatusInProgress() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -239,7 +239,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
 
 
     @Test //проверьте, что экземпляры класса Task и наследники равны друг другу, если равен их id;
-    public void equalityOfTasksWithSameId() {
+    public void equalityOfTasksWithSameId() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         final int taskId = manager.addNewTask(task);
         final Task savedTask = manager.taskById(taskId);
@@ -296,7 +296,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test //проверьте, что InMemoryTaskManager действительно добавляет задачи разного типа и может найти их по id;
-    public void InMemoryTaskManagerTest() {
+    public void InMemoryTaskManagerTest() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         final int taskId = manager.addNewTask(task);
         assertEquals(task, manager.taskById(taskId));
@@ -334,7 +334,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test //task, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingTaskWhenChanging() {
+    public void savingTaskWhenChanging() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         manager.addNewTask(task);
         manager.taskById(1);
@@ -347,7 +347,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test //epic, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingEpicWhenChanging() {
+    public void savingEpicWhenChanging() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         manager.addNewEpic(epic);
         manager.epicById(1);
@@ -360,7 +360,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test //subtask, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
-    public void savingSubTaskWhenChanging() {
+    public void savingSubTaskWhenChanging() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -427,7 +427,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test // Внутри эпиков не должно оставаться неактуальных id подзадач.
-    public void testDeleteSubtaskRemovesIdFromEpic() {
+    public void testDeleteSubtaskRemovesIdFromEpic() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -440,7 +440,7 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     }
 
     @Test // Удаляемые подзадачи не должны хранить внутри себя старые id.
-    public void testDeleteEpicRemovesAllSubtasks() {
+    public void testDeleteEpicRemovesAllSubtasks() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -452,12 +452,12 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
 
         manager.delEpicById(epicId);
 
-        assertNull(manager.subtaskById(subtaskId1));
-        assertNull(manager.subtaskById(subtaskId2));
+        assertThrows(NotFoundException.class, () -> manager.subtaskById(subtaskId1));
+        assertThrows(NotFoundException.class, () -> manager.subtaskById(subtaskId2));
     }
 
     @Test //Сеттеры влияют на данные внутри менеджера
-    public void testSetterChangeDoesAffectManagerWithoutUpdate() {
+    public void testSetterChangeDoesAffectManagerWithoutUpdate() throws NotFoundException {
         Task task = new Task("Задача", "Описание", Duration.ofHours(2), LocalDateTime.now());
         int taskId = manager.addNewTask(task);
 

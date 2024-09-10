@@ -27,7 +27,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     abstract T createTaskManager();
 
     @Test
-    public void testAddNewTask() {
+    public void testAddNewTask() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание задачи 1", Duration.ofHours(1), LocalDateTime.now());
         int id = manager.addNewTask(task);
         assertNotEquals(-1, id);
@@ -38,16 +38,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void testAddNewEpic() {
+    public void testAddNewEpic() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание");
         int id = manager.addNewEpic(epic);
         assertNotNull(id);
         assertEquals(epic, manager.epicById(id));
-
     }
 
     @Test
-    public void testAddNewSubtask() {
+    public void testAddNewSubtask() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -59,7 +58,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void testUpdateEpicStatus() {
+    public void testUpdateEpicStatus() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask1 = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -183,21 +182,21 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void testTaskById() {
+    public void testTaskById() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         int taskId = manager.addNewTask(task);
         assertEquals(task, manager.taskById(taskId));
     }
 
     @Test
-    public void testEpicById() {
+    public void testEpicById() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         assertEquals(epic, manager.epicById(epicId));
     }
 
     @Test
-    public void testSubtaskById() {
+    public void testSubtaskById() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
@@ -207,34 +206,34 @@ abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void testDelTaskById() {
+    public void testDelTaskById() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         int taskId = manager.addNewTask(task);
         manager.delTaskById(taskId);
-        assertNull(manager.taskById(taskId));
+        assertThrows(NotFoundException.class, () -> manager.taskById(taskId));
     }
 
     @Test
-    public void testDelEpicById() {
+    public void testDelEpicById() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         manager.delEpicById(epicId);
-        assertNull(manager.epicById(epicId));
+        assertThrows(NotFoundException.class, () -> manager.epicById(epicId));
     }
 
     @Test
-    public void testDelSubtaskById() {
+    public void testDelSubtaskById() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int epicId = manager.addNewEpic(epic);
         Subtask subtask = new Subtask("Подзадача 1", "Описание подзадачи 1",
                 epicId, Duration.ofHours(1), LocalDateTime.now());
         int subtaskId = manager.addNewSubtask(subtask);
         manager.delSubtaskById(subtaskId);
-        assertNull(manager.subtaskById(subtaskId));
+        assertThrows(NotFoundException.class, () -> manager.subtaskById(subtaskId));
     }
 
     @Test
-    public void testGetHistory() {
+    public void testGetHistory() throws NotFoundException {
         Task task = new Task("Задача 1", "Описание 1", Duration.ofHours(2), LocalDateTime.now());
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
         int taskId = manager.addNewTask(task);

@@ -31,11 +31,11 @@ public interface TaskManager {
 
     void clearSubtasks();
 
-    Task taskById(int id);
+    Task taskById(int id) throws NotFoundException;
 
-    Epic epicById(int id);
+    Epic epicById(int id) throws NotFoundException;
 
-    Subtask subtaskById(int id);
+    Subtask subtaskById(int id) throws NotFoundException;
 
     void delTaskById(int id);
 
@@ -44,4 +44,8 @@ public interface TaskManager {
     void delSubtaskById(int id);
 
     List<Task> getHistory();
+
+    void checkTasksIntersection(Task task);
+
+    List<Task> getPrioritizedTasks();
 }

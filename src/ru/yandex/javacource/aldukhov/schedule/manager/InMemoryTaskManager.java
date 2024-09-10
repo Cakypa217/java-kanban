@@ -158,22 +158,31 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task taskById(int id) {
+    public Task taskById(int id) throws NotFoundException {
         Task task = tasks.get(id);
         historyManager.add(task);
+        if (task == null) {
+            throw new NotFoundException("Задачи с id " + id + " нет");
+        }
         return task;
     }
 
     @Override
-    public Epic epicById(int id) {
+    public Epic epicById(int id) throws NotFoundException {
         Epic epic = epics.get(id);
+        if (epic == null) {
+            throw new NotFoundException("Эпика с id " + id + " нет");
+        }
         historyManager.add(epic);
         return epic;
     }
 
     @Override
-    public Subtask subtaskById(int id) {
+    public Subtask subtaskById(int id) throws NotFoundException {
         Subtask subtask = subtasks.get(id);
+        if (subtask == null) {
+            throw new NotFoundException("Подзадачи с id " + id + " нет");
+        }
         historyManager.add(subtask);
         return subtask;
     }
@@ -273,11 +282,13 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(historyManager.getHistory());
     }
 
+    @Override
     public List<Task> getPrioritizedTasks() {
         return new ArrayList<>(prioritizedTasks);
     }
 
-    private void checkTasksIntersection(Task task) throws TaskValidationException {
+    @Override
+    public void checkTasksIntersection(Task task) throws TaskValidationException {
         if (task.getStartTime() == null) {
             throw new TaskValidationException("Невозможно добавить задачу: отсутствует время начала");
         }

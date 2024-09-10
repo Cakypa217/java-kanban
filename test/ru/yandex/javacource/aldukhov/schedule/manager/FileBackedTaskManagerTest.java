@@ -70,7 +70,7 @@ public class FileBackedTaskManagerTest {
     }
 
     @Test
-    public void testSaveAndLoadMultipleTasks() {
+    public void testSaveAndLoadMultipleTasks() throws NotFoundException {
         Task task1 = new Task(1, "Задача 1", "Описание задачи 1", Status.NEW, Type.TASK);
         task1.setStartTime(LocalDateTime.now());
         task1.setDuration(Duration.ofHours(1));
