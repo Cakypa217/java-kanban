@@ -352,15 +352,17 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
         int epicId = manager.addNewEpic(epic);
         manager.epicById(epicId);
 
-        List<Task> history = manager.getHistory();
-        Task epicFromHistory = history.get(0);
+        Epic originalEpic = new Epic(epic.getName(), epic.getDescription());
+        originalEpic.setId(epicId);
 
         Epic updatedEpic = new Epic("Эпик 2", "Описание эпика 2");
         updatedEpic.setId(epicId);
         manager.updateEpic(updatedEpic);
 
-        Assertions.assertEquals(epic.getName(), epicFromHistory.getName());
-        Assertions.assertEquals(epic.getDescription(), epicFromHistory.getDescription());
+        List<Task> updatedHistory = manager.getHistory();
+        Task epicFromHistoryAfterUpdate = updatedHistory.get(0);
+        Assertions.assertEquals(originalEpic.getName(), epicFromHistoryAfterUpdate.getName());
+        Assertions.assertEquals(originalEpic.getDescription(), epicFromHistoryAfterUpdate.getDescription());
 
         Epic retrievedEpic = manager.epicById(epicId);
         Assertions.assertEquals("Эпик 2", retrievedEpic.getName());
