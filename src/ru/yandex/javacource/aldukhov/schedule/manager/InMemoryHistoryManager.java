@@ -88,4 +88,11 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
         return tasks;
     }
+
+    @Override
+    public void clear() {
+        history.clear();
+        head = null;
+        tail = null;
+    }
 }
