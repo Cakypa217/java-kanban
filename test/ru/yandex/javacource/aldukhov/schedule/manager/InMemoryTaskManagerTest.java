@@ -349,14 +349,22 @@ public class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager
     @Test //epic, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.
     public void savingEpicWhenChanging() throws NotFoundException {
         Epic epic = new Epic("Эпик 1", "Описание эпика 1");
-        manager.addNewEpic(epic);
-        manager.epicById(1);
-        Epic epic1 = manager.epicById(1);
-        epic1.setId(2);
-        List<Task> epics = manager.getHistory();
-        Task epic2 = epics.get(0);
-        manager.updateEpic(new Epic("Эпик 2", "Описание эпика 2"));
-        Assertions.assertEquals(epic1, epic2);
+        int epicId = manager.addNewEpic(epic);
+        manager.epicById(epicId);
+
+        List<Task> history = manager.getHistory();
+        Task epicFromHistory = history.get(0);
+
+        Epic updatedEpic = new Epic("Эпик 2", "Описание эпика 2");
+        updatedEpic.setId(epicId);
+        manager.updateEpic(updatedEpic);
+
+        Assertions.assertEquals(epic.getName(), epicFromHistory.getName());
+        Assertions.assertEquals(epic.getDescription(), epicFromHistory.getDescription());
+
+        Epic retrievedEpic = manager.epicById(epicId);
+        Assertions.assertEquals("Эпик 2", retrievedEpic.getName());
+        Assertions.assertEquals("Описание эпика 2", retrievedEpic.getDescription());
     }
 
     @Test //subtask, добавляемые в HistoryManager, сохраняют предыдущую версию задачи и её данных.

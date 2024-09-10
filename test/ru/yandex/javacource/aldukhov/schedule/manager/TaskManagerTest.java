@@ -242,7 +242,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         manager.epicById(epicId);
         List<Task> history = manager.getHistory();
 
-        assertEquals(3, history.size());
+        assertEquals(4, history.size());
         assertTrue(history.contains(task));
         assertTrue(history.contains(epic));
     }
